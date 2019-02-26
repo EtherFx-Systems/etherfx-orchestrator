@@ -1,8 +1,8 @@
 import grpc
-from etherfx-core.net.proto import TaskService_pb2_grpc
 from worker import Worker
+TaskService = __import__("etherfx-core.ether.net.proto.TaskService_pb2_grpc.TaskService")
 
-class Daemon(TaskService_pb2_grpc.TaskService):
+class Daemon(TaskService):
 
     def __init__(self):
         self.args = None
@@ -30,9 +30,9 @@ class Daemon(TaskService_pb2_grpc.TaskService):
     def exec_task(self, request, response):
         pass
 
-    def serve():
+    def serve(self):
         pass
 
 if __name__ == "__main__":
     	worker = Daemon()
-    	Worker.serve()
+    	worker.serve()
