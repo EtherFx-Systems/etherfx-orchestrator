@@ -1,9 +1,13 @@
 import grpc
+import uuid
 import time
 import logging
 from concurrent import futures
 from worker import Worker
 
+from TaskCommon_pb2 import Status
+from TaskCommon_pb2 import StatusCode
+from TaskMetadata_pb2 import TaskReceived as TaskReceived
 from TaskService_pb2_grpc import TaskServiceServicer as TaskService
 from TaskService_pb2_grpc import add_TaskServiceServicer_to_server as AddTaskServicer
 
@@ -11,10 +15,9 @@ from TaskService_pb2_grpc import add_TaskServiceServicer_to_server as AddTaskSer
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 class Daemon(TaskService):
 
-    def __init__(self):
-        # self.args = None
-        # self.task_id = None
-        # self.task_metadata = None
+    def __init__(self, args=None, task_metadata=None):
+        self.args = args
+        self.task_metadata = task_metadata
         pass
 
     def generateTaskID(self, TaskMetaData):
@@ -24,7 +27,18 @@ class Daemon(TaskService):
         pass
 
     def AddTask(self, request, context):
-        print("This is working!!")
+        task_metadata = {
+            "module": request.module, 
+            "function": request.function, 
+            "args": request.args,
+            "kwargs": request.kwargs,
+            "task_id": request.task_id,
+            "_class": request._class
+        }
+        task_metadata["task_id"] = str(uuid.uuid4())
+        self.task_metadata = task_metadata
+        return TaskReceived(status=Status(status=StatusCode.Value('OK'), message='Task Metadata received!' ), task_id= task_metadata["task_id"])
+
 
     def AddArgument(self, request, context):
         # p = ThreadPool(self.task_metadata.noofargs)
