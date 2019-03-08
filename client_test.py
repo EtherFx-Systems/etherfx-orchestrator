@@ -27,7 +27,7 @@ def run():
 
     
 
-    with grpc.insecure_channel('localhost:50051') as channel:
+    with grpc.insecure_channel('35.222.28.225:50051') as channel:
         stub = TaskService_pb2_grpc.TaskServiceStub(channel)
         response = stub.AddTask(TaskMetadata_pb2.TaskMetadata(module='numpy', function='inverse', args=5, kwargs=None, task_id=None, _class='linalg'))
         print("Test client received status: %s and task_id: %s" % (response.status, response.task_id))
