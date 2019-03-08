@@ -4,6 +4,7 @@ import time
 import logging
 from concurrent import futures
 from worker import Worker
+from _thread import start_new_thread
 
 from TaskCommon_pb2 import Status
 from TaskCommon_pb2 import StatusCode
@@ -15,7 +16,7 @@ from TaskService_pb2_grpc import add_TaskServiceServicer_to_server as AddTaskSer
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 class Daemon(TaskService):
 
-    def __init__(self, args=None, task_metadata=None):
+    def __init__(self, args=[], task_metadata=None):
         self.args = args
         self.task_metadata = task_metadata
         pass
@@ -37,13 +38,26 @@ class Daemon(TaskService):
         }
         task_metadata["task_id"] = str(uuid.uuid4())
         self.task_metadata = task_metadata
+        print("triggered AddTask")
         return TaskReceived(status=Status(status=StatusCode.Value('OK'), message='Task Metadata received!' ), task_id= task_metadata["task_id"])
 
 
-    def AddArgument(self, request, context):
-        # p = ThreadPool(self.task_metadata.noofargs)
-        # self.args.append(p.map(Worker, request.<stream-name>))
-        pass
+    def AddArgument(self, request_iterator, context):
+        # p = ThreadPool(1)
+        # self.args.append(p.map(Worker, request_iterator))
+        thread = Worker(request_iterator, self)
+        thread.start()
+        thread.join()
+        print("triggered AddArgument")
+        print(self.args)
+        if len(self.args) == int(self.task_metadata["args"]):
+            #Send to GDS 
+            #Add task to the queue
+            self.args = []
+            return Status(status=StatusCode.Value('OK'), message='Task Pending!' )
+        else:
+            return Status(status=StatusCode.Value('OK'), message='Task Argument Received!' )
+        
 
     def PollTask(self, request, context):
         pass
