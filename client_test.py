@@ -3,8 +3,8 @@ import logging
 
 import grpc
 
-import TaskMetadata_pb2
-import TaskService_pb2_grpc
+import core.net.proto.TaskMetadata_pb2 as TaskMetadata_pb2
+import core.net.proto.TaskService_pb2_grpc as TaskService_pb2_grpc
 
 
 def streamer():
@@ -27,9 +27,11 @@ def run():
 
     
 
-    with grpc.insecure_channel('35.222.28.225:50051') as channel:
+    with grpc.insecure_channel('localhost:50051') as channel:
+        print(channel)
         stub = TaskService_pb2_grpc.TaskServiceStub(channel)
-        response = stub.AddTask(TaskMetadata_pb2.TaskMetadata(module='numpy', function='inverse', args=5, kwargs=None, task_id=None, _class='linalg'))
+        temp = TaskMetadata_pb2.TaskMetadata(module='numpy', function='inverse', args=5, kwargs=None, task_id=None, _class='linalg')
+        response = stub.AddTask(temp)
         print("Test client received status: %s and task_id: %s" % (response.status, response.task_id))
         for i in range(5):
             temp = streamer()

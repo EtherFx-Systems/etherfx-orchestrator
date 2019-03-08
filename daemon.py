@@ -6,11 +6,14 @@ from concurrent import futures
 from worker import Worker
 from _thread import start_new_thread
 
-from TaskCommon_pb2 import Status
-from TaskCommon_pb2 import StatusCode
-from TaskMetadata_pb2 import TaskReceived as TaskReceived
-from TaskService_pb2_grpc import TaskServiceServicer as TaskService
-from TaskService_pb2_grpc import add_TaskServiceServicer_to_server as AddTaskServicer
+
+from core.net.proto.TaskCommon_pb2 import Status as Status
+from core.net.proto.TaskCommon_pb2 import StatusCode as StatusCode
+from core.net.proto.TaskMetadata_pb2 import TaskReceived as TaskReceived
+from core.net.proto.TaskService_pb2_grpc import TaskServiceServicer as TaskService
+from core.net.proto.TaskService_pb2_grpc import add_TaskServiceServicer_to_server as AddTaskServicer
+
+
 
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
@@ -39,7 +42,7 @@ class Daemon(TaskService):
         task_metadata["task_id"] = str(uuid.uuid4())
         self.task_metadata = task_metadata
         print("triggered AddTask")
-        return TaskReceived(status=Status(status=StatusCode.Value('OK'), message='Task Metadata received!' ), task_id= task_metadata["task_id"])
+        return TaskReceived(status=Status(code=StatusCode.Value('OK'), message='Task Metadata received!' ), task_id= task_metadata["task_id"])
 
 
     def AddArgument(self, request_iterator, context):
@@ -48,8 +51,6 @@ class Daemon(TaskService):
         thread = Worker(request_iterator, self)
         thread.start()
         thread.join()
-        print("triggered AddArgument")
-        print(self.args)
         if len(self.args) == int(self.task_metadata["args"]):
             #Send to GDS 
             #Add task to the queue

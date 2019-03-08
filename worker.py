@@ -14,6 +14,7 @@ class Worker(threading.Thread):
     def construct_argument(self):
         # if removed from the class, pass self.stream to construct_argument() inside run method
         argument = []
-        for peace in self.stream:
-            argument += peace.arg
+        print(next(self.stream))
+        # for peace in self.stream:
+        #     argument += peace.arg
         self.parent.args.append(argument)
