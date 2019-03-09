@@ -18,13 +18,6 @@ def run():
     # used in circumstances in which the with statement does not fit the needs
     # of the code.
 
-    # string module = 1;
-    # string function = 2;
-    # int32 args = 3;
-    # repeated string kwargs = 4;
-    # string task_id = 5;
-    # string _class = 6;
-
     
 
     with grpc.insecure_channel('localhost:50051') as channel:

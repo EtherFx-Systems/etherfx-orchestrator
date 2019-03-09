@@ -5,11 +5,13 @@ import logging
 from concurrent import futures
 from worker import Worker
 from _thread import start_new_thread
+import dill as pickle
 
 
 from core.net.proto.TaskCommon_pb2 import Status as Status
 from core.net.proto.TaskCommon_pb2 import StatusCode as StatusCode
 from core.net.proto.TaskMetadata_pb2 import TaskReceived as TaskReceived
+from core.net.proto.TaskMetadata_pb2 import TaskResponse as TaskResponse
 from core.net.proto.TaskService_pb2_grpc import TaskServiceServicer as TaskService
 from core.net.proto.TaskService_pb2_grpc import add_TaskServiceServicer_to_server as AddTaskServicer
 
@@ -48,6 +50,7 @@ class Daemon(TaskService):
     def AddArgument(self, request_iterator, context):
         # p = ThreadPool(1)
         # self.args.append(p.map(Worker, request_iterator))
+
         thread = Worker(request_iterator, self)
         thread.start()
         thread.join()
@@ -55,13 +58,20 @@ class Daemon(TaskService):
             #Send to GDS 
             #Add task to the queue
             self.args = []
-            return Status(status=StatusCode.Value('OK'), message='Task Pending!' )
+            return Status(code=StatusCode.Value('OK'), message='Task Pending!' )
         else:
-            return Status(status=StatusCode.Value('OK'), message='Task Argument Received!' )
+            return Status(code=StatusCode.Value('OK'), message='Task Argument Received!' )
         
 
     def PollTask(self, request, context):
-        pass
+        #query 
+        computation_result = None #This is going to be the result value that needs to be sent to client
+        #if task is done then
+        if(computation_result):
+            bin_arg = pickle.dumps(computation_result)
+            return TaskResponse(result=bin_arg)
+        else:
+            return Status(code=StatusCode.Value('Wait'), message='Fuck Off!' )
 
     def ExecTask(self, request, context):
         pass
