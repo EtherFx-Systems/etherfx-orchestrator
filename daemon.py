@@ -14,7 +14,8 @@ from core.net.proto.TaskMetadata_pb2 import TaskReceived as TaskReceived
 from core.net.proto.TaskMetadata_pb2 import TaskResponse as TaskResponse
 from core.net.proto.TaskService_pb2_grpc import TaskServiceServicer as TaskService
 from core.net.proto.TaskService_pb2_grpc import add_TaskServiceServicer_to_server as AddTaskServicer
-
+from core.redis_interface import GDSClient
+from core.rabbitmq_interface import RabbitMQInterface
 
 
 
@@ -22,7 +23,7 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 class Daemon(TaskService):
 
     def __init__(self, args=[], task_metadata=None):
-        self.args = args
+        self.args = args #[b'0x56', b'0x56'...]
         self.task_metadata = task_metadata
         pass
 
@@ -56,8 +57,12 @@ class Daemon(TaskService):
         thread.join()
         if len(self.args) == int(self.task_metadata["args"]):
             #Send to GDS 
-            #Add task to the queue
+            gds.add_args_to_gds(self.task_metadata["task_id"], self.args)
+            #TEMPORARY FIX FOR THIS DEMO
+            self.task_metadata['kwargs'] = None
+            rabbitMQ.publish_taskMetadata_to_queue_from_orchestrator(self.task_metadata)
             self.args = []
+            print(self.task_metadata)
             return Status(code=StatusCode.Value('OK'), message='Task Pending!' )
         else:
             return Status(code=StatusCode.Value('OK'), message='Task Argument Received!' )
@@ -68,6 +73,8 @@ class Daemon(TaskService):
         computation_result = None #This is going to be the result value that needs to be sent to client
         #if task is done then
         if(computation_result):
+            # Get the result of the computation form the GDS here and put it into computation_result
+            gds.get_result_from_gds(self.task_metadata["task_id"])
             bin_arg = pickle.dumps(computation_result)
             return TaskResponse(result=bin_arg)
         else:
@@ -89,5 +96,7 @@ def serve():
         server.stop(0)
 
 if __name__ == "__main__":
-    	worker = Daemon()
-    	serve()
+    worker = Daemon()
+    gds = GDSClient()
+    rabbitMQ = RabbitMQInterface()
+    serve()
