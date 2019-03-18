@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: etherfx-orchestrator
-        image: gcr.io/groupify-201122/etherfx-orchestrator:v4
+        image: gcr.io/groupify-201122/etherfx-orchestrator:v9
         ports:
         - containerPort: 50051
 ---

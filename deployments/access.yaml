@@ -5,7 +5,7 @@ metadata:
   namespace: default
 subjects:
 - kind: User
-  name: "sandesh.bhandari007@gmail.com"
+  name: "anishbasu.pr@gmail.com"
   apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole

@@ -70,15 +70,17 @@ class Daemon(TaskService):
 
     def PollTask(self, request, context):
         #query 
-        computation_result = None #This is going to be the result value that needs to be sent to client
+        # computation_result = None #This is going to be the result value that needs to be sent to client
+        computation_result = gds.get_result_from_gds_noexcept(self.task_metadata["task_id"])
+        
         #if task is done then
         if(computation_result):
             # Get the result of the computation form the GDS here and put it into computation_result
-            gds.get_result_from_gds(self.task_metadata["task_id"])
-            bin_arg = pickle.dumps(computation_result)
-            return TaskResponse(result=bin_arg)
+            # gds.get_result_from_gds(self.task_metadata["task_id"])
+            # bin_arg = pickle.dumps(computation_result)
+            return TaskResponse(result=computation_result)
         else:
-            return Status(code=StatusCode.Value('Wait'), message='Fuck Off!' )
+            return TaskResponse(status=Status(code=StatusCode.Value('OK'), message='Fuck Off!'))
 
     def ExecTask(self, request, context):
         pass
