@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: redis
-        image: gcr.io/groupify-201122/etherfx-redis:v1
+        image: gcr.io/high-codex-238017/etherfx-redis:v1
         ports:
         - containerPort: 6379
 ---

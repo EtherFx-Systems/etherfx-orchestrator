@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: rabbitmq
-        image: gcr.io/groupify-201122/etherfx-rabbitmq:v1
+        image: gcr.io/high-codex-238017/etherfx-rabbitmq:v1
         ports:
         - containerPort: 5672
 ---
