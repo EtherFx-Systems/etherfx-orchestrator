@@ -17,6 +17,7 @@ spec:
       containers:
       - name: etherfx-orchestrator
         image: gcr.io/high-codex-238017/etherfx-orchestrator:v9
+        imagePullPolicy: Always
         ports:
         - containerPort: 50051
 ---
